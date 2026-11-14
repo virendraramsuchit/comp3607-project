@@ -1,0 +1,13 @@
+package com.example;
+
+public enum LifecycleEventType {
+    PROJECT_CREATED,
+    PROJECT_OPENED,
+    PROJECT_MODIFIED,
+    PROJECT_CLOSED,
+    PROJECT_DELETED,
+    CLASS_CREATED,
+    CLASS_MODIFIED,
+    CLASS_RENAMED,
+    CLASS_DELETED
+}
