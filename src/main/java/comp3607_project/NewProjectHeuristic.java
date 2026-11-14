@@ -1,4 +1,4 @@
-package com.comp3607_project;
+package comp3607_project;
 
 import java.io.IOException;
 import java.nio.file.Files;
