@@ -1,4 +1,4 @@
-package com.comp3607_project;
+package comp3607_project;
 
 import bluej.extensions2.BClass;
 import bluej.extensions2.event.PackageEvent;
