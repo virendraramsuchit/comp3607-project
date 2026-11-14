@@ -1,4 +1,4 @@
-package com.comp3607_project;
+package comp3607_project;
 
 //Where lifecycle events go once created. 
  
