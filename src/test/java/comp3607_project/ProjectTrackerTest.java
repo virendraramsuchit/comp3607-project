@@ -6,7 +6,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import static com.comp3607_project.LifecycleEventType.*;
+import static comp3607_project.LifecycleEventType.*;
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
@@ -16,8 +16,8 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-import com.comp3607_project.LifecycleEvent;
-import com.comp3607_project.ProjectTracker;
+import comp3607_project.LifecycleEvent;
+import comp3607_project.ProjectTracker;
 
 class ProjectTrackerTest {
 

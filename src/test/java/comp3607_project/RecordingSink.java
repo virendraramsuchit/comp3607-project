@@ -4,9 +4,9 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import com.comp3607_project.LifecycleEvent;
-import com.comp3607_project.LifecycleEventType;
-import com.comp3607_project.LifecycleSink;
+import comp3607_project.LifecycleEvent;
+import comp3607_project.LifecycleEventType;
+import comp3607_project.LifecycleSink;
 
 final class RecordingSink implements LifecycleSink {
 

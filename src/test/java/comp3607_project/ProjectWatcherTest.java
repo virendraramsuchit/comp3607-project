@@ -19,10 +19,10 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
 
-import com.comp3607_project.LifecycleEventType;
-import com.comp3607_project.ProjectTracker;
-import com.comp3607_project.ProjectWatcher;
-import com.comp3607_project.SourceFiles;
+import comp3607_project.LifecycleEventType;
+import comp3607_project.ProjectTracker;
+import comp3607_project.ProjectWatcher;
+import comp3607_project.SourceFiles;
 
 class ProjectWatcherTest {
 

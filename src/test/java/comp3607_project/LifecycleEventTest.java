@@ -6,8 +6,8 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import org.junit.jupiter.api.Test;
 
-import com.comp3607_project.LifecycleEvent;
-import com.comp3607_project.LifecycleEventType;
+import comp3607_project.LifecycleEvent;
+import comp3607_project.LifecycleEventType;
 
 class LifecycleEventTest {
 

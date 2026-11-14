@@ -5,10 +5,10 @@ import static org.junit.jupiter.api.Assertions.assertSame;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import org.junit.jupiter.api.Test;
 
-import com.comp3607_project.LifecycleEvent;
-import com.comp3607_project.LifecycleEventAdapter;
-import com.comp3607_project.LifecycleEventType;
-import com.comp3607_project.TelemetryEvent;
+import comp3607_project.LifecycleEvent;
+import comp3607_project.LifecycleEventAdapter;
+import comp3607_project.LifecycleEventType;
+import comp3607_project.TelemetryEvent;
 
 class LifecycleEventAdapterTest {
 
