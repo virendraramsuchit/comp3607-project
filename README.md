@@ -2,7 +2,7 @@
 
 A BlueJ extension that records telemetry (edits, compilations, executions) and exports a JSON file and a PDF report.
 
-## Setup (each team member, once)
+## Setup 
 
 1. **Java 21.** Maven must run on JDK 21 (the same version BlueJ uses).
    Check with `mvn -version` and make sure it says Java 21.
