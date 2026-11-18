@@ -1,7 +1,18 @@
 package com.comp3607_project;
-
+/**
+ * Calculates the number of single-character insertions, deletions and substitutions between
+ * two versions of a text (the Levenshtein distance). The distance algorithm is adapted from
+ * GeeksforGeeks, "Java Program to Implement Wagner and Fisher Algorithm for Online String
+ * Matching".
+ */
 public class EditCalculator {
-
+/**
+ * Returns {@code true} if the two texts are not equal.
+ *
+ * @param oldText the text before the change
+ * @param newText the text after the change
+ * @return {@code true} if the two texts are not equal
+ */
     public boolean isChanged(String oldText, String newText){
 
         if(oldText.equals(newText)){
@@ -10,7 +21,13 @@ public class EditCalculator {
 
         return true;
     }
-    
+/**
+ * Returns the Levenshtein distance between the two strings using a dynamic-programming table.
+ *
+ * @param str1 the first string
+ * @param str2 the second string
+ * @return the Levenshtein distance between the two strings using a dynamic-programming table
+ */
     //Levenshtein distance using dynamic programming
     //Source: GeeksforGeeks, "Java Program to Implement Wagner and Fisher Algorithm for Online String Matching", https://www.geeksforgeeks.org/java/java-program-to-implement-wagner-and-fisher-algorithm-for-online-string-matching/
     public static int getDistance(String str1, String str2){
@@ -53,7 +70,14 @@ public class EditCalculator {
 
         return arr[l1][l2];
     }
-
+/**
+ * Skips the unchanged start and end of the two texts, then calls {@code getDistance} on the
+ * edited middle only. This keeps memory use small for large files.
+ *
+ * @param oldText the text before the change
+ * @param newText the text after the change
+ * @return the number of single-character edits between the texts
+ */
     //Addition: skip the start and end of the text that did not change, so the table above is only built for
     //the part that was edited. Without this, large files need too much memory
     public static int levenshtein(String oldText, String newText){
@@ -73,7 +97,13 @@ public class EditCalculator {
 
         return getDistance(oldText.substring(start, endOld), newText.substring(start, endNew));
     }
-
+/**
+ * Returns 0 if the texts are equal, otherwise {@code levenshtein(oldText, newText)}.
+ *
+ * @param oldText the text before the change
+ * @param newText the text after the change
+ * @return the number of characters changed
+ */
     public int getNumChanges(String oldText, String newText){
 
         if(!isChanged(oldText, newText)){

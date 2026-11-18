@@ -13,28 +13,55 @@ import bluej.extensions2.BlueJ;
 import bluej.extensions2.editor.JavaEditor;
 import bluej.extensions2.editor.TextLocation;
 import javafx.application.Platform;
-
+/**
+ * Once a second, checks the text of every open class editor in every open project. When a
+ * class's text has changed since the last check, records an {@link EditEvent} with the number
+ * of characters changed and the time since that class's previous edit.
+ */
 public class EditPoller {
-    
+/**
+ * Where edit events are sent.
+ */
     private EventSink sink;
+/**
+ * Used to find the open projects, packages and classes.
+ */
     private BlueJ bluej;
+/**
+ * Works out how many characters changed.
+ */
     private EditCalculator calculator;
-
+/**
+ * Last seen text of each class, keyed by {@code project/class}.
+ */
     //Stores previous contents of each class
     private Map <String, String> previousContents;
-
+/**
+ * Time of the last recorded edit for each class, keyed by {@code project/class}.
+ */
     private Map<String, Long> lastEditTime = new HashMap<>();
-
+/**
+ * Runs the once-a-second check.
+ */
     //Runs the polling task
     private ScheduledExecutorService scheduler;
-
+/**
+ * Creates a poller that reads from {@code bluej} and sends events to {@code sink}.
+ *
+ * @param bluej the BlueJ proxy passed to the extension
+ * @param sink where edit events are sent
+ */
     public EditPoller(BlueJ bluej, EventSink sink){
         this.bluej = bluej;
         this.sink = sink;
         this.calculator = new EditCalculator();
         this.previousContents = new HashMap<>();
     }
-
+/**
+ * Compares each open editor's text with its previous text. The first time a class is seen, its
+ * text is stored and nothing is recorded. On a change, records an {@code EditEvent} (idle time
+ * is 0 for a class's first recorded edit). Errors are caught and printed so polling continues.
+ */
     public void checkForChanges(){
     
         //Try - catch used since getPackages() and getClasses() throw a checked exception which needs to be caught
@@ -95,7 +122,10 @@ public class EditPoller {
 
     }
 
-
+/**
+ * Starts a single background timer that runs {@code checkForChanges()} every second on the
+ * JavaFX application thread ({@code Platform.runLater}), where editor text can be read.
+ */
     public void start(){
 
         scheduler = Executors.newSingleThreadScheduledExecutor();
@@ -107,7 +137,9 @@ public class EditPoller {
             TimeUnit.SECONDS
         );
     }
-
+/**
+ * Shuts down the timer.
+ */
     public void stop(){
 
         if(scheduler != null){
