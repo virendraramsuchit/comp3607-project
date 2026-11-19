@@ -20,15 +20,31 @@ import com.comp3607_project.ExecutionEvent;
 import com.comp3607_project.LifecycleEventAdapter;
 import com.comp3607_project.TelemetryEvent;
 
+/**
+ * Writes {@code telemetry-report.pdf} in the user's home folder using Apache PDFBox. The
+ * report has a session overview, lifecycle events by type, a compilation summary with an error
+ * breakdown, runtime statistics with edits, runs and exceptions per class, and three charts.
+ * The charts move to a second page when the first page is nearly full.
+ */
 public class PdfReportStrategy implements ReportStrategy {
 
+        /**
+     * {@code telemetry-report.pdf} in the user's home folder.
+     */
     private final Path pdfFile;
 
+        /**
+     * Sets the output path.
+     */
     public PdfReportStrategy() {
         this.pdfFile = Path.of(System.getProperty("user.home"), "telemetry-report.pdf");
     }
 
-    
+        /**
+     * Adds up the events and draws the report. A write error is printed, not thrown.
+     *
+     * @param events the session's events, in order
+     */   
     @Override
     public void write(List<TelemetryEvent> events) {
         try (PDDocument doc = new PDDocument()) {
@@ -170,6 +186,20 @@ public class PdfReportStrategy implements ReportStrategy {
         }
     }
 
+        /**
+     * Draws a titled two-column table of names and counts (or "(none)") and returns the y position
+     * below it.
+     *
+     * @param cs the PDFBox content stream to draw on
+     * @param bold the bold font
+     * @param plain the regular font
+     * @param title the heading drawn above the table or chart
+     * @param data category names and their counts
+     * @param x the left edge, in PDF points
+     * @param y the top position, in PDF points
+     * @return the y position below the table
+     * @throws IOException if PDFBox cannot write to the page
+     */
     private float table(PDPageContentStream cs, PDFont bold, PDFont plain,
                         String title, Map<String,Integer> data, float x, float y) throws IOException {
         cs.beginText(); cs.setFont(bold, 13);
@@ -188,6 +218,20 @@ public class PdfReportStrategy implements ReportStrategy {
         return y;
     }
 
+        /**
+     * Draws the "Charts" section: run outcomes per class, compilation errors by type, lifecycle
+     * events by type.
+     *
+     * @param cs the PDFBox content stream to draw on
+     * @param bold the bold font
+     * @param plain the regular font
+     * @param startY the top position of the section, in PDF points
+     * @param rC number of runs per class
+     * @param xC number of exceptions per class
+     * @param compileErrors number of compile errors per category
+     * @param lifecycleTypes number of lifecycle events per type
+     * @throws IOException if PDFBox cannot write to the page
+     */
     private void drawGraphSection(PDPageContentStream cs, PDFont bold, PDFont plain,
                                   float startY,
                                   Map<String,Integer> rC,
@@ -222,6 +266,21 @@ public class PdfReportStrategy implements ReportStrategy {
                          lifecycleTypes, 50, y, 420, 20);
     }
 
+        /**
+     * Draws one bar per class split into normal runs and exceptions, with percentages. Stops with
+     * "(more rows omitted - page full)" at the bottom of the page.
+     *
+     * @param cs the PDFBox content stream to draw on
+     * @param bold the bold font
+     * @param plain the regular font
+     * @param title the heading drawn above the table or chart
+     * @param rows per class, {@code {normal runs, exceptions}}
+     * @param x the left edge, in PDF points
+     * @param y the top position, in PDF points
+     * @param width the chart width, in PDF points
+     * @param barHeight the height of each bar, in PDF points
+     * @throws IOException if PDFBox cannot write to the page
+     */
     private void drawStackedHBar(PDPageContentStream cs, PDFont bold, PDFont plain,
                                  String title, Map<String,int[]> rows,
                                  float x, float y, float width, float barHeight) throws IOException {
@@ -305,6 +364,20 @@ public class PdfReportStrategy implements ReportStrategy {
         }
     }
 
+        /**
+     * Draws one bar split by each category's share, with a legend, or "(no data)".
+     *
+     * @param cs the PDFBox content stream to draw on
+     * @param bold the bold font
+     * @param plain the regular font
+     * @param title the heading drawn above the table or chart
+     * @param data category names and their counts
+     * @param x the left edge, in PDF points
+     * @param y the top position, in PDF points
+     * @param width the chart width, in PDF points
+     * @param barHeight the height of each bar, in PDF points
+     * @throws IOException if PDFBox cannot write to the page
+     */
     private void drawSegmentedBar(PDPageContentStream cs, PDFont bold, PDFont plain,
                                   String title, Map<String,Integer> data,
                                   float x, float y, float width, float barHeight) throws IOException {

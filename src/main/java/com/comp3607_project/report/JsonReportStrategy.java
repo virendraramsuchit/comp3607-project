@@ -17,14 +17,30 @@ import com.comp3607_project.LifecycleEvent;
 import com.comp3607_project.LifecycleEventAdapter;
 import com.comp3607_project.TelemetryEvent;
 
+/**
+* Writes {@code telemetry-output.json} in the user's home folder. The file holds an {@code
+* events} array, with one object per event including {@code type}, {@code timestamp} and
+* {@code timestampIso}, and a {@code summary} object with the session totals.
+*/
 public class JsonReportStrategy implements ReportStrategy {
 
+        /**
+     * {@code telemetry-output.json} in the user's home folder.
+     */
     private final Path jsonFile;
 
+        /**
+     * Sets the output path.
+     */
     public JsonReportStrategy() {
         this.jsonFile = Path.of(System.getProperty("user.home"), "telemetry-output.json");
     }
 
+        /**
+     * Builds the JSON and overwrites the file. A write error is printed, not thrown.
+     *
+     * @param events the session's events, in order
+     */
     @Override
     public void write(List<TelemetryEvent> events) {
         StringBuilder sb = new StringBuilder("{\n  \"events\": [\n");
@@ -44,6 +60,13 @@ public class JsonReportStrategy implements ReportStrategy {
         }
     }
 
+        /**
+     * Converts one event to a JSON object of type {@code EDIT}, {@code RUN}, {@code LIFECYCLE},
+     * {@code COMPILE} or {@code ACTIVITY}, or {@code {"type":"UNKNOWN"}} for any other event.
+     *
+     * @param e the event to record
+     * @return the event as a JSON object
+     */
     private String serialize(TelemetryEvent e) {
         if (e instanceof EditEvent ed) {
             return String.format(
@@ -95,21 +118,48 @@ public class JsonReportStrategy implements ReportStrategy {
         return "{\"type\":\"UNKNOWN\"}";
     }
 
+        /**
+     * Escapes backslashes and double quotes; returns {@code ""} for {@code null}.
+     *
+     * @param s the text to process
+     * @return the escaped text, or an empty string for {@code null}
+     */
     private static String esc(String s) {
         if (s == null) return "";
         return s.replace("\\", "\\\\").replace("\"", "\\\"");
     }
 
+        /**
+     * Formats a time as an ISO-8601 UTC string.
+     *
+     * @param epochMillis a time in ms since 1 January 1970 UTC
+     * @return the time as an ISO-8601 UTC string
+     */
     private static String isoOf(long epochMillis) {
         return java.time.Instant.ofEpochMilli(epochMillis).toString();
     }
 
+        /**
+     * Formats a duration as {@code "45s"} or {@code "3m 12s"}.
+     *
+     * @param ms a duration in ms
+     * @return the duration as text
+     */
     private static String formatDuration(long ms) {
         long s = ms / 1000;
         if (s < 60) return s + "s";
         return (s / 60) + "m " + (s % 60) + "s";
     }
 
+        /**
+     * Builds the summary: session duration, edit count, session and keystroke active/idle time,
+     * lifecycle counts by type, compile successes, failures and errors by category, runs,
+     * exceptions, exception rate, and characters edited, runs and exceptions per class. Returns
+     * {@code {}} when there are no events.
+     *
+     * @param events the session's events, in order
+     * @return the summary as a JSON object
+     */
     private String summaryJson(List<TelemetryEvent> events) {
         if (events.isEmpty()) return "{}";
 
@@ -207,6 +257,12 @@ public class JsonReportStrategy implements ReportStrategy {
             mapJson(editsPerClass), mapJson(runsPerClass), mapJson(exceptionsPerClass));
     }
 
+        /**
+     * Converts a map of counts to a JSON object.
+     *
+     * @param m a map of names to counts
+     * @return the map as a JSON object
+     */
     private String mapJson(Map<String,Integer> m) {
         if (m.isEmpty()) return "{}";
         return m.entrySet().stream()
