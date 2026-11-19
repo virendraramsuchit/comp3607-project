@@ -9,21 +9,43 @@ import java.security.NoSuchAlgorithmException;
 import java.util.HashMap;
 import java.util.Map;
 
+/**
+ * Static helpers for recognising BlueJ source files ({@code .java} and {@code .stride}) and
+ * fingerprinting their content. It cannot be instantiated.
+ */
 // Helpers for finding BlueJ source files
 public final class SourceFiles {
 
+        /**
+     * {@code ".java"}
+     */
     private static final String JAVA = ".java";
+
+        /**
+     * {@code ".stride"}
+     */
     private static final String STRIDE = ".stride";
 
     private SourceFiles() { }
 
-    
+        /**
+     * {@code "pkg.sub.Foo"} -> {@code "Foo"}; a name without dots is returned unchanged.
+     *
+     * @param name a class name, possibly fully qualified
+     * @return the name after the last dot
+     */
     public static String simpleName(String name) {
         int dot = name.lastIndexOf('.');
         return dot < 0 ? name : name.substring(dot + 1);
     }
 
-    
+        /**
+     * {@code "Foo.java"} or {@code "Foo.stride"} -> {@code "Foo"}; returns {@code null} for other
+     * files or invalid class names.
+     *
+     * @param fileName the source file name, or null
+     * @return the class name, or {@code null} if the file is not a valid source file
+     */
     public static String baseName(String fileName) {
         String base;
         if (fileName.endsWith(JAVA)) {
@@ -36,6 +58,12 @@ public final class SourceFiles {
         return isValidClassName(base) ? base : null;
     }
 
+        /**
+     * Returns {@code true} if the string is a valid Java identifier.
+     *
+     * @param s the text to process
+     * @return {@code true} if the string is a valid Java identifier
+     */
     public static boolean isValidClassName(String s) {
         if (s == null || s.isEmpty() || !Character.isJavaIdentifierStart(s.charAt(0))) {
             return false;
@@ -48,6 +76,14 @@ public final class SourceFiles {
         return true;
     }
 
+        /**
+     * Maps each class with a source file directly in {@code dir} to its content fingerprint; the
+     * fingerprint is {@code null} if the file could not be read.
+     *
+     * @param dir a package or project folder
+     * @return class name to fingerprint for every source file in the folder
+     * @throws IOException if the folder cannot be listed
+     */
     // Maps each class name with a source file directly inside dir to a fingerprint of that file's contents. 
     public static Map<String, String> snapshot(Path dir) throws IOException {
         Map<String, String> result = new HashMap<>();
@@ -68,6 +104,13 @@ public final class SourceFiles {
         return result;
     }
 
+        /**
+     * Returns the SHA-256 of the file's bytes as lowercase hex.
+     *
+     * @param file the source file to fingerprint
+     * @return the SHA-256 of the file's bytes as lowercase hex
+     * @throws IOException if the file cannot be read
+     */
     // SHA-256 of the file's bytes, as lowercase hex.
     public static String fingerprint(Path file) throws IOException {
         byte[] digest = sha256().digest(Files.readAllBytes(file));
@@ -78,6 +121,10 @@ public final class SourceFiles {
         return sb.toString();
     }
 
+        /**
+     * Returns a SHA-256 digest.
+     * @return a SHA-256 digest
+     */
     private static MessageDigest sha256() {
         try {
             return MessageDigest.getInstance("SHA-256");
