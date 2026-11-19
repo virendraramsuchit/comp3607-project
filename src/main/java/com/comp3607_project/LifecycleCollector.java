@@ -15,19 +15,44 @@ import bluej.extensions2.event.ClassListener;
 import bluej.extensions2.event.PackageEvent;
 import bluej.extensions2.event.PackageListener;
 
-
+/**
+ * Connects BlueJ's package and class notifications to the {@link ProjectTracker}, and starts
+ * the {@link ProjectWatcher} so changes made outside BlueJ are also seen. It never throws back
+ * into BlueJ: every listener method catches and logs its own errors.
+ */
 public final class LifecycleCollector implements PackageListener, ClassListener {
 
+        /**
+     * Used to register and remove the listeners.
+     */
     private final BlueJ bluej;
+
+        /**
+     * Turns changes into lifecycle events.
+     */
     private final ProjectTracker tracker;
+
+        /**
+     * Watches open package folders.
+     */
     private final ProjectWatcher watcher;
 
+        /**
+     * Creates a tracker that sends events to {@code sink} and a watcher with a 500 ms debounce.
+     *
+     * @param bluej the BlueJ proxy passed to the extension
+     * @param sink where events are sent
+     * @throws IOException if the file watcher cannot be created
+     */
     public LifecycleCollector(BlueJ bluej, LifecycleSink sink) throws IOException {
         this.bluej = bluej;
         this.tracker = new ProjectTracker(sink);
         this.watcher = new ProjectWatcher(tracker, ProjectWatcher.DEFAULT_DEBOUNCE_MILLIS);
     }
 
+        /**
+     * Starts the watcher and registers as a package and class listener. Call from startup.
+     */
     // Call from Extension.startup(BlueJ).
     public void register() {
         watcher.start();
@@ -35,6 +60,10 @@ public final class LifecycleCollector implements PackageListener, ClassListener 
         bluej.addClassListener(this);
     }
 
+        /**
+     * Removes the listeners, closes the watcher and records the close of every open project. Safe
+     * to call more than once.
+     */
     // Call from Extension.terminate(). 
     public void shutdown() {
         try {
@@ -49,6 +78,12 @@ public final class LifecycleCollector implements PackageListener, ClassListener 
 
     //PackageListener
 
+        /**
+     * Collects the package's classes from BlueJ and from disk, checks whether the project looks
+     * new, informs the tracker and starts watching the folder.
+     *
+     * @param ev BlueJ's package notification
+     */
     @Override
     public void packageOpened(PackageEvent ev) {
         try {
@@ -76,6 +111,11 @@ public final class LifecycleCollector implements PackageListener, ClassListener 
         }
     }
 
+        /**
+     * Stops watching the folder and informs the tracker.
+     *
+     * @param ev BlueJ's package notification
+     */
     @Override
     public void packageClosing(PackageEvent ev) {
         try {
@@ -89,6 +129,12 @@ public final class LifecycleCollector implements PackageListener, ClassListener 
 
     // ClassListener
 
+        /**
+     * Reports the class to the tracker (recorded as created the first time) and requests a folder
+     * scan to pick up saved content changes.
+     *
+     * @param ev BlueJ's class notification
+     */
     @Override
     public void classStateChanged(ClassEvent ev) {
         try {
@@ -100,6 +146,11 @@ public final class LifecycleCollector implements PackageListener, ClassListener 
         }
     }
 
+        /**
+     * Reports a rename to the tracker.
+     *
+     * @param ev BlueJ's class notification
+     */
     @Override
     public void classNameChanged(ClassEvent ev) {
         try {
@@ -109,6 +160,12 @@ public final class LifecycleCollector implements PackageListener, ClassListener 
         }
     }
 
+        /**
+     * Reports a removal. If BlueJ's class object can no longer give its name, requests a folder
+     * scan instead.
+     *
+     * @param ev BlueJ's class notification
+     */
     @Override
     public void classRemoved(ClassEvent ev) {
         Path dir = null;
@@ -126,10 +183,22 @@ public final class LifecycleCollector implements PackageListener, ClassListener 
 
     // helpers
 
+        /**
+     * Returns the folder of the event's package.
+     *
+     * @param ev BlueJ's class notification
+     * @return the folder of the event's package
+     */
     private static Path dirOf(ClassEvent ev) throws Exception {
         return ev.getPackage().getDir().toPath();
     }
 
+        /**
+     * Prints an error to BlueJ's debug log.
+     *
+     * @param where where the error happened
+     * @param e the event
+     */
     private static void log(String where, Exception e) {
         System.err.println("[telemetry] " + where + " failed: " + e); // goes to BlueJ's debug log
     }
